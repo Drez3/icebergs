@@ -14,8 +14,19 @@ def main():
 						for band in train_df["band_1"]])
 	x_band2 = np.array([np.array(band).astype(np.float32).reshape(75, 75)
 						for band in train_df["band_2"]])
-	X_train = np.concatenate([x_band1[:, :, :, np.newaxis],
-							  x_band2[:, :, :, np.newaxis]], axis=-1)
+	
+	x_incAngle_df = train_df["inc_angle"].replace('na',np.nan)
+	train_df_incAngle = x_incAngle_df.fillna(x_incAngle_df.mean())	
+	x_incAngle = np.array([np.array(angle).astype(np.float32).reshape(1,1)
+						for angle in train_df_incAngle])
+
+##	# em tese, inplace=True era para escrever no arquivo json
+##	train_df["inc_angle"].fillna(train_df["inc_angle"].replace('na',np.nan).mean(), inplace=True)	
+##	x_incAngle = np.array([np.array(angle).astype(np.float32).reshape(1,1)
+##						for angle in train_df["inc_angle"]])
+	
+	X_train = np.concatenate([x_band1[:, :, :, np.newaxis], x_band2[:, :, :, np.newaxis],
+                                                          x_incAngle[:, :, :, np.newaxis]], axis=-1)
 	Y_train = np.array(train_df["is_iceberg"])
 	vars = X_train.shape
 	d2_train = X_train.reshape(vars[0], vars[1] * vars[2] * vars[3])
